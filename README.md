@@ -2,6 +2,34 @@
 
 A full-stack ecommerce application built with React.js frontend and Node.js + Express + TypeScript backend, featuring PostgreSQL database integration, Stripe payments, Redux state management, and comprehensive user management.
 
+## 📸 Frontend UI Screenshots
+
+### 🏠 Homepage & Product Catalog
+![Homepage with Featured Products](screenshots/homepage.png)
+
+![Product Listing with Search & Filters](screenshots/product-listing.png)
+
+![Product Detail Page](screenshots/product-detail.png)
+
+### 🔐 Authentication & User Management
+![User Login Page](screenshots/user-login.png)
+
+![User Registration](screenshots/user-signup.png)
+
+![User Profile Dashboard](screenshots/user-profile.png)
+
+### 🛒 Shopping Cart & Checkout
+![Shopping Cart](screenshots/shopping-cart.png)
+
+![Checkout Process](screenshots/checkout.png)
+
+![Payment Integration](screenshots/payment.png)
+
+### 📦 Order Management
+![Order History](screenshots/order-history.png)
+
+![Order Details](screenshots/order-detail.png)
+
 ## 🏗️ Architecture
 
 - **Frontend**: React.js with TypeScript + Redux Toolkit
@@ -65,12 +93,6 @@ A full-stack ecommerce application built with React.js frontend and Node.js + Ex
 - Review moderation and management
 - Redux state management for reviews
 
-#### 🎨 UI/UX Features
-- Global notification system (Redux + React Hot Toast)
-- Loading states management
-- Modal management system
-- Theme management (light/dark/system)
-- Responsive design with Tailwind CSS
 
 ### Backend (Node.js + Express + TypeScript - Modular Architecture)
 
@@ -584,123 +606,3 @@ cd ../backend && npm run build
 docker-compose up -d
 ```
 
-## 🛠️ Development Workflow
-
-### Frontend Development
-
-#### Using Redux
-```tsx
-// Import Redux hooks
-import { useAppSelector, useAppDispatch } from '../store/hooks';
-import { addToCart } from '../store/slices/cartSlice';
-
-function ProductCard({ product }) {
-  const dispatch = useAppDispatch();
-  const { isLoading } = useAppSelector(state => state.cart);
-
-  const handleAddToCart = () => {
-    dispatch(addToCart({ productId: product.id, quantity: 1 }));
-  };
-
-  return (
-    <button onClick={handleAddToCart} disabled={isLoading}>
-      Add to Cart
-    </button>
-  );
-}
-```
-
-#### Using Context (Legacy)
-```tsx
-// Import context hooks
-import { useAuth } from '../contexts/AuthContext';
-import { useCart } from '../contexts/CartContext';
-
-function MyComponent() {
-  const { user, login, logout } = useAuth();
-  const { items, addItem } = useCart();
-  
-  // Component logic
-}
-```
-
-### Backend Development
-
-#### Adding a New Module
-1. Create module directory: `src/modules/newFeature/`
-2. Add required files:
-   - `newFeatureController.ts`
-   - `newFeatureService.ts`
-   - `newFeatureRoutes.ts`
-   - `newFeatureValidator.ts`
-   - `newFeatureMiddleware.ts`
-3. Update `src/routes/index.ts` to include new routes
-4. Add types to `src/types/index.ts`
-
-#### Module Structure Example
-```typescript
-// newFeatureController.ts
-export const newFeatureController = {
-  async getItems(req: Request, res: Response, next: NextFunction) {
-    // Controller logic
-  },
-  // ... other methods
-};
-
-// newFeatureService.ts
-export const newFeatureService = {
-  async getItems() {
-    // Business logic
-  },
-  // ... other methods
-};
-```
-
-### State Management Guidelines
-
-#### When to Use Redux
-- Complex state that needs to be shared across components
-- State that needs persistence (cart, auth)
-- State with complex logic or async operations
-- State that benefits from time-travel debugging
-
-#### When to Use Context
-- Simple state that's only used in a small component tree
-- Theme or configuration state
-- Legacy code that works well with context
-- State that doesn't need persistence
-
-## 🤝 Contributing
-
-### Development Setup
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Install dependencies: `npm install` (both frontend and backend)
-4. Make your changes
-5. Test your changes thoroughly
-6. Commit your changes: `git commit -m 'Add amazing feature'`
-7. Push to the branch: `git push origin feature/amazing-feature`
-8. Create a Pull Request
-
-### Code Standards
-- Follow TypeScript best practices
-- Use meaningful variable and function names
-- Add proper error handling
-- Include JSDoc comments for complex functions
-- Write tests for new features
-- Follow the existing code style and patterns
-
-### Pull Request Guidelines
-- Provide a clear description of changes
-- Include screenshots for UI changes
-- Ensure all tests pass
-- Update documentation if needed
-- Request review from maintainers
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 📞 Support
-
-For support and questions, please open an issue in the repository.
