@@ -65,15 +65,28 @@ export interface ChangePasswordData {
 export interface UploadAvatarResponse {
     success: boolean;
     message: string;
-    avatarUrl: string;
+    data: {
+        id: string;
+        name: string;
+        email: string;
+        avatar?: string;
+        role: 'user' | 'admin';
+        isActive: boolean;
+        emailVerified: boolean;
+        lastLogin?: Date;
+        createdAt?: Date;
+        updatedAt?: Date;
+    };
 }
 
 export interface S3UploadResponse {
     success: boolean;
     message: string;
-    uploadUrl: string;
-    key: string;
-    bucket: string;
+    data: {
+        uploadUrl: string;
+        key: string;
+        expiresIn: number;
+    };
 }
 
 // Mock data for development
@@ -163,77 +176,49 @@ export const userService = {
 
     // Upload profile picture
     async uploadAvatar(file: File): Promise<UploadAvatarResponse> {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        const formData = new FormData();
+        formData.append('avatar', file);
 
-        // For now, return a mock URL
-        // In production, this would upload to S3 and return the URL
-        const mockAvatarUrl = `https://images.unsplash.com/photo-${Date.now()}?w=150&h=150&fit=crop&crop=face`;
+        const response = await api.post('/users/avatar', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
 
-        // Update mock profile
-        mockProfile.avatar = mockAvatarUrl;
-        mockProfile.updatedAt = new Date().toISOString();
-
-        return {
-            success: true,
-            message: 'Avatar uploaded successfully',
-            avatarUrl: mockAvatarUrl,
-        };
+        return response.data;
     },
 
     // Get S3 upload URL for direct upload
     async getS3UploadUrl(fileName: string, fileType: string): Promise<S3UploadResponse> {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const response = await api.post('/users/avatar/upload-url', {
+            fileName,
+            fileType,
+        });
 
-        // For now, return mock S3 URL
-        // In production, this would get a presigned URL from backend
-        const mockKey = `avatars/${Date.now()}-${fileName}`;
-        const mockUploadUrl = `https://mock-s3-bucket.s3.amazonaws.com/${mockKey}`;
-
-        return {
-            success: true,
-            message: 'S3 upload URL generated',
-            uploadUrl: mockUploadUrl,
-            key: mockKey,
-            bucket: 'mock-s3-bucket',
-        };
+        return response.data;
     },
 
     // Confirm S3 upload completion
     async confirmS3Upload(key: string): Promise<UploadAvatarResponse> {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const response = await api.post('/users/avatar/confirm-upload', {
+            key,
+        });
 
-        // For now, return mock confirmation
-        // In production, this would confirm with backend
-        const mockAvatarUrl = `https://mock-s3-bucket.s3.amazonaws.com/${key}`;
-
-        // Update mock profile
-        mockProfile.avatar = mockAvatarUrl;
-        mockProfile.updatedAt = new Date().toISOString();
-
-        return {
-            success: true,
-            message: 'S3 upload confirmed',
-            avatarUrl: mockAvatarUrl,
-        };
+        return response.data;
     },
 
     // Delete profile picture
     async deleteAvatar(): Promise<void> {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await api.delete('/users/avatar');
+    },
 
-        // For now, just simulate success
-        // In production, this would be:
-        // await api.delete('/users/avatar');
+    // Get signed URL for avatar access
+    async getAvatarSignedUrl(avatarUrl: string): Promise<{ signedUrl: string; expiresIn?: number }> {
+        const response = await api.get('/users/avatar/signed-url', {
+            params: { url: avatarUrl },
+        });
 
-        // Update mock profile
-        mockProfile.avatar = undefined;
-        mockProfile.updatedAt = new Date().toISOString();
-
-        console.log('Avatar deleted successfully (mock)');
+        return response.data.data;
     },
 
     // Get user statistics (optional)

@@ -334,7 +334,7 @@ ecommerce-app/
    ```bash
    # Start PostgreSQL and Redis
    # Create database
-   createdb ecommerce_db
+   createdb ecommerce_app
    
    # Run migrations
    cd backend

@@ -28,29 +28,41 @@
             "@/*": [
                 "*"
             ],
-            "@/controllers/*": [
-                "controllers/*"
-            ],
-            "@/models/*": [
-                "models/*"
-            ],
-            "@/routes/*": [
-                "routes/*"
+            "@/config/*": [
+                "config/*"
             ],
             "@/middleware/*": [
                 "middleware/*"
             ],
-            "@/services/*": [
-                "services/*"
+            "@/modules/*": [
+                "modules/*"
             ],
-            "@/utils/*": [
-                "utils/*"
+            "@/routes/*": [
+                "routes/*"
             ],
             "@/types/*": [
                 "types/*"
             ],
-            "@/config/*": [
-                "config/*"
+            "@/modules/auth/*": [
+                "modules/auth/*"
+            ],
+            "@/modules/user/*": [
+                "modules/user/*"
+            ],
+            "@/modules/product/*": [
+                "modules/product/*"
+            ],
+            "@/modules/cart/*": [
+                "modules/cart/*"
+            ],
+            "@/modules/order/*": [
+                "modules/order/*"
+            ],
+            "@/modules/payment/*": [
+                "modules/payment/*"
+            ],
+            "@/modules/review/*": [
+                "modules/review/*"
             ]
         }
     },

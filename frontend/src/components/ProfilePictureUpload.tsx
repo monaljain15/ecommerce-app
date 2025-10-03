@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { userService } from '../services/userService';
 import { Camera, Upload, X, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -16,7 +16,27 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
 }) => {
     const [isUploading, setIsUploading] = useState(false);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [displayUrl, setDisplayUrl] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Handle signed URL generation for S3 avatars
+    useEffect(() => {
+        const generateSignedUrl = async () => {
+            if (currentAvatar && currentAvatar.includes('s3')) {
+                try {
+                    const { signedUrl } = await userService.getAvatarSignedUrl(currentAvatar);
+                    setDisplayUrl(signedUrl);
+                } catch (error) {
+                    console.error('Failed to generate signed URL:', error);
+                    setDisplayUrl(currentAvatar); // Fallback to original URL
+                }
+            } else {
+                setDisplayUrl(currentAvatar || null);
+            }
+        };
+
+        generateSignedUrl();
+    }, [currentAvatar]);
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -48,15 +68,8 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     const uploadFile = async (file: File) => {
         setIsUploading(true);
         try {
-            // Option 1: Direct upload to backend (handles S3 internally)
-            const response = await userService.uploadAvatar(file);
-
-            if (response.success) {
-                onAvatarChange(response.avatarUrl);
-                toast.success('Profile picture updated successfully!');
-            } else {
-                throw new Error(response.message);
-            }
+            // Use S3 direct upload flow for better performance
+            await handleS3DirectUpload(file);
         } catch (error: any) {
             console.error('Upload error:', error);
             toast.error(error.response?.data?.message || 'Failed to upload profile picture');
@@ -70,7 +83,6 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     };
 
     const handleS3DirectUpload = async (file: File) => {
-        setIsUploading(true);
         try {
             // Get S3 upload URL from backend
             const uploadResponse = await userService.getS3UploadUrl(file.name, file.type);
@@ -80,7 +92,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
             }
 
             // Upload directly to S3
-            const s3Response = await fetch(uploadResponse.uploadUrl, {
+            const s3Response = await fetch(uploadResponse.data.uploadUrl, {
                 method: 'PUT',
                 body: file,
                 headers: {
@@ -93,10 +105,10 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
             }
 
             // Confirm upload with backend
-            const confirmResponse = await userService.confirmS3Upload(uploadResponse.key);
+            const confirmResponse = await userService.confirmS3Upload(uploadResponse.data.key);
 
             if (confirmResponse.success) {
-                onAvatarChange(confirmResponse.avatarUrl);
+                onAvatarChange(confirmResponse.data.avatar || '');
                 toast.success('Profile picture updated successfully!');
             } else {
                 throw new Error(confirmResponse.message);
@@ -104,12 +116,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
         } catch (error: any) {
             console.error('S3 upload error:', error);
             toast.error(error.message || 'Failed to upload profile picture');
-        } finally {
-            setIsUploading(false);
-            setPreviewUrl(null);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
+            throw error; // Re-throw to be caught by uploadFile
         }
     };
 
@@ -128,16 +135,16 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
         fileInputRef.current?.click();
     };
 
-    const displayUrl = previewUrl || currentAvatar;
+    const finalDisplayUrl = previewUrl || displayUrl;
 
     return (
         <div className={`relative ${className}`}>
             <div className="relative inline-block">
                 {/* Profile Picture */}
                 <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                    {displayUrl ? (
+                    {finalDisplayUrl ? (
                         <img
-                            src={displayUrl}
+                            src={finalDisplayUrl}
                             alt="Profile"
                             className="w-full h-full object-cover"
                         />

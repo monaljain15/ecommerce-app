@@ -6,9 +6,9 @@ services:
     image: postgres:15
     container_name: ecommerce_postgres
     environment:
-      POSTGRES_DB: ecommerce_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ecommerce_app
+      POSTGRES_USER: monal
+      POSTGRES_PASSWORD: qwerty123
     ports:
       - "5432:5432"
     volumes:
@@ -37,9 +37,9 @@ services:
       - NODE_ENV=development
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=ecommerce_db
-      - DB_USER=postgres
-      - DB_PASSWORD=password
+      - DB_NAME=ecommerce_app
+      - DB_USER=monal
+      - DB_PASSWORD=qwerty123
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:

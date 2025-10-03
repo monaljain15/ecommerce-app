@@ -64,7 +64,7 @@ export const uploadAvatar = createAsyncThunk(
     async (file: File, { rejectWithValue }) => {
         try {
             const response = await userService.uploadAvatar(file);
-            return response.avatarUrl;
+            return response.data.avatar || '';
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || 'Failed to upload avatar');
         }
